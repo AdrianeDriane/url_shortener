@@ -25,6 +25,17 @@ interface UrlResponse {
   createdAt: string;
 }
 
+interface GetUrlResult {
+  url: {
+    id: string;
+    original_url: string;
+    slug: string;
+    expiration_date: string | null;
+    utm_params?: UtmParams | null;
+  } | null;
+  status: "found" | "not_found" | "expired";
+}
+
 class UrlService {
   /**
    * Create a new shortened URL with automatic UTM extraction and cleaning
@@ -44,11 +55,6 @@ class UrlService {
    * Stored: { original_url: "https://example.com?foo=bar", utm_params: { source: "twitter" } }
    */
   async createShortenedUrl(dto: CreateUrlDto): Promise<UrlResponse> {
-    // Validate expiration date if provided
-    if (dto.expiration_date) {
-      this.validateExpirationDate(dto.expiration_date);
-    }
-
     const slug = dto.slug || (await this.generateUniqueSlug());
 
     await this.validateSlugUniqueness(slug);
@@ -81,26 +87,36 @@ class UrlService {
    * Manages cache, expiration checking, and analytics tracking
    *
    * Logic flow:
-   * 1. Get URL from cache
-   * 2. If not found or expired, return null
-   * 3. Increment click count (async)
-   * 4. Record click details to clicks table (async)
-   * 5. Return URL data
+   * 1. Get URL from cache with status
+   * 2. If not found, return not_found status
+   * 3. If expired, track expired access and return expired status with URL data
+   * 4. If found, increment click count and record click details
+   * 5. Return URL data with status
    *
    * @param slug - The shortened URL slug
    * @param referrer - Optional HTTP Referer header value
    * @param userAgent - Optional HTTP User-Agent header value
-   * @returns URL data or null if not found/expired
+   * @returns Object with URL data and status
    */
   async getAndTrackUrl(
     slug: string,
     referrer?: string | null,
     userAgent?: string | null,
-  ) {
-    const url = await cacheService.getLink(slug);
+  ): Promise<GetUrlResult> {
+    const { url, status } = await cacheService.getLink(slug);
 
-    if (!url) return null;
+    if (status === "not_found" || !url) {
+      return { url: null, status: "not_found" };
+    }
 
+    if (status === "expired") {
+      // Track expired access attempt
+      this.incrementExpiredAccessCountAsync(slug);
+      this.trackClickAsync(url.id, referrer || null, userAgent || null);
+      return { url, status: "expired" };
+    }
+
+    // Valid URL - track the click
     this.incrementClickCountAsync(url.id);
     this.trackClickAsync(url.id, referrer || null, userAgent || null);
 
@@ -108,17 +124,7 @@ class UrlService {
       url.original_url = appendUtmParams(url.original_url, url.utm_params);
     }
 
-    return url;
-  }
-
-  /**
-   * Track expired access attempts without blocking redirect response
-   * Useful for analytics on expired links
-   *
-   * @param slug - The slug that was accessed while expired
-   */
-  async trackExpiredAccess(slug: string): Promise<void> {
-    this.incrementExpiredAccessCountAsync(slug);
+    return { url, status: "found" };
   }
 
   private async generateUniqueSlug(): Promise<string> {
@@ -182,37 +188,6 @@ class UrlService {
       .catch((error) => console.error("Error recording click:", error));
   }
 
-  /**
-   * Validate expiration date format and ensure it's in the future
-   * Accepts ISO 8601 format with timezone (e.g., "2026-02-15T14:30:00+00:00")
-   * or local datetime without timezone (converts to UTC)
-   *
-   * @param expirationDate - ISO 8601 datetime string
-   * @returns true if valid and in future, throws error otherwise
-   */
-  private validateExpirationDate(expirationDate: string): void {
-    if (!expirationDate) return; // Optional field
-
-    try {
-      const expiryTime = new Date(expirationDate).getTime();
-      const now = new Date().getTime();
-
-      if (isNaN(expiryTime)) {
-        throw new Error(
-          'Invalid expiration date format. Use ISO 8601 format (e.g., "2026-02-15T14:30:00")',
-        );
-      }
-
-      if (expiryTime <= now) {
-        throw new Error("Expiration date must be in the future");
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error("Invalid expiration date");
-    }
-  }
 }
 
 const urlService = new UrlService();

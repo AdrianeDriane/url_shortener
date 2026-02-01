@@ -35,15 +35,6 @@ class UrlController {
         return;
       }
 
-      if (
-        error instanceof Error &&
-        (error.message.includes("expiration date") ||
-          error.message.includes("Invalid expiration"))
-      ) {
-        res.status(400).json({ error: error.message });
-        return;
-      }
-
       console.error("Error creating shortened URL:", error);
       res.status(500).json({ error: "Failed to create shortened URL" });
     }
@@ -52,7 +43,7 @@ class UrlController {
   /**
    * GET /:slug
    * Redirect to the original URL with analytics tracking
-   * Extracts referrer and user-agent headers for click analytics
+   * Handles found, not_found, and expired states appropriately
    */
   async redirectToOriginal(req: Request, res: Response): Promise<void> {
     try {
@@ -60,7 +51,21 @@ class UrlController {
       const referrer = req.get("referer") || null;
       const userAgent = req.get("user-agent") || null;
 
-      const url = await urlService.getAndTrackUrl(slug, referrer, userAgent);
+      const { url, status } = await urlService.getAndTrackUrl(
+        slug,
+        referrer,
+        userAgent,
+      );
+
+      if (status === "not_found") {
+        res.redirect(`${config.frontend.url}/404`);
+        return;
+      }
+
+      if (status === "expired") {
+        res.redirect(`${config.frontend.url}/expired?slug=${slug}`);
+        return;
+      }
 
       if (!url) {
         res.redirect(`${config.frontend.url}/404`);
@@ -70,23 +75,6 @@ class UrlController {
       res.redirect(url.original_url);
     } catch (error) {
       console.error("Error redirecting URL:", error);
-      res.redirect(`${config.frontend.url}/404`);
-    }
-  }
-
-  /**
-   * GET /:slug/expired
-   * Handle expired URL access
-   */
-  async handleExpiredUrl(req: Request, res: Response): Promise<void> {
-    try {
-      const { slug } = req.params;
-
-      await urlService.trackExpiredAccess(slug);
-
-      res.redirect(`${config.frontend.url}/expired?slug=${slug}`);
-    } catch (error) {
-      console.error("Error handling expired URL:", error);
       res.redirect(`${config.frontend.url}/404`);
     }
   }

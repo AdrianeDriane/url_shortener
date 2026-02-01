@@ -15,6 +15,11 @@ interface CachedUrl {
   updated_at: string;
 }
 
+interface GetLinkResult {
+  url: CachedUrl | null;
+  status: "found" | "not_found" | "expired";
+}
+
 class UrlCacheService {
   private cache: LRUCache<string, CachedUrl>;
   private readonly DEFAULT_TTL_MS = config.cache.defaultTtlMs;
@@ -34,27 +39,30 @@ class UrlCacheService {
    *
    * Logic flow:
    * 1. Check if URL exists in cache
-   * 2. If cache miss, query database and return null if not found
+   * 2. If cache miss, query database and return not_found if not found
    * 3. Check if URL is expired based on expiration_date
-   * 4. If expired, delete from cache (passive cleanup) and return null
+   * 4. If expired, delete from cache (passive cleanup) and return expired status
    * 5. Update cache with appropriate TTL (respecting individual expiration dates)
    * 6. Return URL data for redirection
    *
-   * @param slug - The 8-character unique slug identifier
-   * @returns URL data or null if not found or expired
+   * @param slug - The unique slug identifier
+   * @returns Object with url data and status (found, not_found, or expired)
    */
-  async getLink(slug: string): Promise<CachedUrl | null> {
+  async getLink(slug: string): Promise<GetLinkResult> {
     const cached = this.cache.get(slug);
     const url = cached || (await this.fetchFromDatabase(slug));
 
-    if (!url) return null;
+    if (!url) {
+      return { url: null, status: "not_found" };
+    }
+
     if (this.isExpired(url)) {
       this.cache.delete(slug);
-      return null;
+      return { url, status: "expired" };
     }
 
     this.updateCacheEntry(slug, url);
-    return url;
+    return { url, status: "found" };
   }
 
   /**

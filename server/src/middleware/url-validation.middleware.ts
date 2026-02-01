@@ -28,9 +28,19 @@ export function validateShortenRequest(
     return;
   }
 
-  if (expiration_date && new Date(expiration_date).getTime() <= Date.now()) {
-    res.status(400).json({ error: "expiration_date must be in the future" });
-    return;
+  if (expiration_date) {
+    const expiryTime = new Date(expiration_date).getTime();
+    if (isNaN(expiryTime)) {
+      res.status(400).json({
+        error:
+          'Invalid expiration date format. Use ISO 8601 format (e.g., "2026-02-15T14:30:00")',
+      });
+      return;
+    }
+    if (expiryTime <= Date.now()) {
+      res.status(400).json({ error: "Expiration date must be in the future" });
+      return;
+    }
   }
 
   if (utm_params && !isValidUtmParams(utm_params)) {
