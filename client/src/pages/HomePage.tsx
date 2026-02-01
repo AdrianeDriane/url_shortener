@@ -8,6 +8,7 @@ function HomePage() {
         <a href="https://react.dev" target="_blank">
           <img src={reactLogo} alt="React logo" className="w-36 h-36" />
         </a>
+        <a href="http://localhost:8000/gm2zIsxU">Click Me</a>
       </div>
       <h1>Symph coding assignment page 1</h1>
       <div className="py-4">
