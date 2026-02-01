@@ -4,6 +4,8 @@ import HomePage from "../pages/HomePage";
 import SecondPage from "../pages/SecondPage";
 import DashboardIndexPage from "../pages/DashboardIndexPage";
 import DashboardAnalyticsPage from "../pages/DashboardAnalyticsPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import ExpiredPage from "../pages/ExpiredPage";
 
 export function AppRouter() {
   return (
@@ -16,6 +18,8 @@ export function AppRouter() {
           path="/dashboard/:shortCode"
           element={<DashboardAnalyticsPage />}
         />
+        <Route path="/404" element={<NotFoundPage />} />
+        <Route path="/expired" element={<ExpiredPage />} />
       </Route>
     </Routes>
   );

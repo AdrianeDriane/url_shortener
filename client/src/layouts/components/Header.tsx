@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Github, Command, Menu, X } from "lucide-react";
+import { Github, Menu, X, Unlink } from "lucide-react";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if on dashboard route
+  const isDashboard =
+    location.pathname === "/dashboard" ||
+    location.pathname.startsWith("/dashboard/");
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -23,23 +31,25 @@ export function Header() {
       <header className="w-full border-b border-zinc-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-white">
-              <Command size={18} />
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+              <Unlink size={18} />
             </div>
             <span className="font-semibold text-zinc-900 tracking-tight">
-              symph.live
+              slugger
             </span>
           </div>
 
           <nav className="flex items-center gap-2 sm:gap-4">
-            <a
-              href="/dashboard"
-              className="hidden sm:inline text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
+            <button
+              onClick={() => navigate(isDashboard ? "/" : "/dashboard")}
+              className="hidden sm:inline text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
             >
-              Dashboard
-            </a>
+              {isDashboard ? "Generate" : "Dashboard"}
+            </button>
             <a
-              href="#"
+              href="https://github.com/AdrianeDriane/url_shortener"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden sm:inline text-zinc-500 hover:text-zinc-900 transition-colors p-2 hover:bg-zinc-100 rounded-md"
               aria-label="Source Code"
             >
@@ -93,15 +103,19 @@ export function Header() {
                     </button>
                   </div>
                   <nav className="flex flex-col gap-1">
-                    <a
-                      href="/dashboard"
-                      className="py-3 px-3 text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors"
-                      onClick={() => setIsOpen(false)}
+                    <button
+                      onClick={() => {
+                        navigate(isDashboard ? "/" : "/dashboard");
+                        setIsOpen(false);
+                      }}
+                      className="py-3 px-3 text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors cursor-pointer w-full text-left"
                     >
-                      Dashboard
-                    </a>
+                      {isDashboard ? "Generate" : "Dashboard"}
+                    </button>
                     <a
-                      href="#"
+                      href="https://github.com/AdrianeDriane/url_shortener"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="py-3 px-3 text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors"
                       onClick={() => setIsOpen(false)}
                     >

@@ -14,9 +14,12 @@ function DashboardIndexPage() {
   const [shortCode, setShortCode] = useState("");
   const navigate = useNavigate();
 
+  // Validation: exactly 8 alphanumeric characters
+  const isValidCode = /^[a-zA-Z0-9]{8}$/.test(shortCode);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (shortCode.trim()) {
+    if (isValidCode) {
       navigate(`/dashboard/${shortCode.trim()}`);
     }
   };
@@ -49,7 +52,7 @@ function DashboardIndexPage() {
   ];
 
   return (
-    <div className="bg-[#fafafa] min-h-screen pb-20">
+    <div className="bg-[#fafafa] min-h-50vh pb-20">
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
         {/* Hero Section */}
         <section className="text-center mb-8 sm:mb-12">
@@ -83,7 +86,7 @@ function DashboardIndexPage() {
               className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 sm:p-8"
             >
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
+                <div className="flex-1 flex flex-col">
                   <div className="relative">
                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
                       <Search size={18} />
@@ -92,15 +95,26 @@ function DashboardIndexPage() {
                       type="text"
                       value={shortCode}
                       onChange={(e) => setShortCode(e.target.value)}
-                      placeholder="Enter your short code (e.g., abc123)"
+                      placeholder="Enter your short code (e.g., abc12345)"
+                      maxLength={8}
                       className="w-full pl-10 pr-4 py-3.5 border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                     />
                   </div>
+                  {shortCode && !isValidCode && (
+                    <p className="text-xs text-amber-600 mt-2">
+                      Code must be exactly 8 alphanumeric characters
+                    </p>
+                  )}
+                  {shortCode && isValidCode && (
+                    <p className="text-xs text-green-600 mt-2">
+                      ✓ Valid code format
+                    </p>
+                  )}
                 </div>
                 <button
                   type="submit"
-                  disabled={!shortCode.trim()}
-                  className="bg-zinc-900 text-white font-medium py-3.5 px-6 rounded-xl hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                  disabled={!isValidCode}
+                  className="bg-zinc-900 text-white font-medium py-3.5 px-6 rounded-xl hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap sm:self-start"
                 >
                   View Analytics
                   <ArrowRight size={18} />

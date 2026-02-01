@@ -25,8 +25,8 @@ function HomePage() {
               <span className="text-indigo-600">Measure impact.</span>
             </h1>
             <p className="text-base sm:text-lg text-zinc-500 max-w-2xl mx-auto">
-              The modern URL shortener for brands that care about design and
-              data. Create, track, and manage your links with precision.
+              The modern URL shortener for brands that care about reach and
+              engagement. Create, track, and manage your links with precision.
             </p>
           </motion.div>
 

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { isValidUrl, isValidSlug } from "../utils/slug.utils";
 import { isValidUtmParams } from "../utils/utm.utils";
+import { config } from "../config/index";
 
 /**
  * Validate POST /api/shorten request body
@@ -66,7 +67,7 @@ export function validateSlugParam(
   const { slug } = req.params;
 
   if (!isValidSlug(slug)) {
-    res.status(400).json({ error: "Invalid slug format" });
+    res.redirect(`${config.frontend.url}/404`);
     return;
   }
 
