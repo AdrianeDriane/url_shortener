@@ -6,10 +6,13 @@ A full-stack URL shortener application with analytics dashboard, built as part o
 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
-- [Setup Instructions](#setup-instructions)
+- [Setup Instructions](#setup-instructions) Please see if can't run on your device :D
 - [Troubleshooting](#troubleshooting-common-setup-issues)
 - [Documentation](#documentation)
 - [P.S.](#ps)
+- [What I Would Add](#what-i-would-add)
+- [What I've Learned](#what-ive-learned)
+- [Conclusion](#conclusion)
 
 ---
 
@@ -177,3 +180,33 @@ Detailed documentation for each part of the codebase can be found in their respe
 ## P.S.
 
 The `.env` file has been committed and pushed to this repository. I'm fully aware this is a security anti-pattern in production environments. However, for the purposes of this coding challenge, I've included it to ensure ease of setup and a seamless review experience—no additional configuration required. In a real-world scenario, `.env` would be added to `.gitignore` and environment variables would be managed through secure secrets management.
+
+---
+
+## What I Would Add
+
+If I had more time to transform this into a fully production-ready application, I would add:
+
+| Feature                                    | Purpose                                                                                |
+| ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| **Authentication**                         | Enable user accounts for personalized route customizations and analytics privacy       |
+| **Geolocation Tracking**                   | Track which cities/regions the clicks are coming from for deeper geographic insights   |
+| **Tanstack Query**                         | Implement client-side caching for analytics data to reduce API calls and improve UX    |
+| **Rate Limiting & Brute Force Protection** | Prevent abuse and protect against malicious actors attempting to overwhelm the service |
+| **WebSockets**                             | Enable real-time analytics updates without requiring page refreshes                    |
+
+---
+
+## What I've Learned
+
+Even though this was a coding test, I found myself learning throughout the process!
+
+- **LRU Caching in Node.js** — I learned how to implement an LRU (Least Recently Used) cache layer in an Express.js server to optimize frequently accessed URL lookups. Understanding cache eviction policies and TTL management was particularly insightful.
+
+- **How Modern URL Shorteners Scale** — I researched how large-scale URL shortening services (like Bitly, TinyURL, and others) approach their architecture—from distributed databases and CDN edge caching to analytics pipelines and slug collision strategies.
+
+---
+
+## Conclusion
+
+I genuinely enjoyed working on this coding challenge! It was a great opportunity to build something end-to-end while exploring caching strategies, analytics tracking, and clean architecture patterns. Thank you so much for the opportunity—I had a lot of fun and learned a ton along the way. 🚀
