@@ -2,6 +2,22 @@
 
 The frontend is a React single-page application built with TypeScript, Vite, and Tailwind CSS.
 
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Pages](#pages)
+- [Features](#features)
+  - [Shortener Feature](#shortener-feature-featuresshortener)
+  - [Analytics Feature](#analytics-feature-featuresanalytics)
+- [Services](#services)
+- [Types](#types-typesapitypests)
+- [Scripts](#scripts)
+- [Styling](#styling)
+- [Key Design Decisions](#key-design-decisions)
+
+---
+
 ## Tech Stack
 
 | Technology    | Purpose                  |
