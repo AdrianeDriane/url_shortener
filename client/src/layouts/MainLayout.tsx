@@ -1,12 +1,15 @@
 import { Outlet } from "react-router";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 export default function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Main Content - No header/footer as components handle their own layout */}
+      <Header />
       <main className="flex-1">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }

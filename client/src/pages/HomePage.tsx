@@ -1,17 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Header } from "../components/Header";
-import { URLComposer } from "../components/URLComposer";
-import { SuccessState } from "../components/SuccessState";
-import { AnalyticsDashboard } from "../components/AnalyticsDashboard";
+import { URLComposer } from "../features/shortener/components/URLComposer";
+import { SuccessState } from "../features/shortener/components/SuccessState";
+import { AnalyticsDashboard } from "../features/analytics/components/AnalyticsDashboard";
 
 function HomePage() {
   const [hasShortened, setHasShortened] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#fafafa] pb-20">
-      <Header />
-
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 space-y-12">
         {/* Hero / Composer Section */}
         <section className="min-w-full space-y-8 min-h-[65vh] flex flex-col items-center justify-center">

@@ -30,7 +30,7 @@ export function AnalyticsDashboard() {
             title="Total Clicks"
             value="1,247"
             icon={BarChart3}
-            trend="+12.5%"
+            trend={"+12.5%"}
           />
         </motion.div>
         <motion.div variants={item} className="h-full">
