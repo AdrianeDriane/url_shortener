@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { Copy, ExternalLink, Check, QrCode, BarChart3 } from "lucide-react";
+import { Copy, ExternalLink, Check, BarChart3, Download } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { ShortenResponse } from "../services/url.service";
 
 function SkeletonLoader() {
@@ -42,6 +43,20 @@ export function SuccessState({ data }: SuccessStateProps) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadQR = () => {
+    const canvas = qrRef.current?.querySelector("canvas") as HTMLCanvasElement;
+    if (canvas) {
+      const url = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${data.slug}-qr-code.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   useEffect(() => {
     // Simulate loading for 0.5 seconds
@@ -141,17 +156,28 @@ export function SuccessState({ data }: SuccessStateProps) {
         </div>
 
         <div className="flex-shrink-0">
-          <div className="bg-white p-3 rounded-xl border border-zinc-200 shadow-sm group cursor-pointer hover:border-indigo-200 transition-colors">
+          <div
+            ref={qrRef}
+            className="bg-white p-3 rounded-xl border border-zinc-200 shadow-sm group cursor-pointer hover:border-indigo-200 transition-colors"
+            onClick={handleDownloadQR}
+          >
             <div className="w-32 h-32 bg-zinc-100 rounded-lg flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:8px_8px]"></div>
-              <QrCode
-                className="text-zinc-400 group-hover:text-indigo-600 transition-colors"
-                size={48}
+              <QRCodeCanvas
+                value={data.short_url}
+                size={128}
+                level="H"
+                includeMargin={false}
+                className="w-full h-full"
               />
             </div>
-            <p className="text-center text-xs font-medium text-zinc-500 mt-2 group-hover:text-indigo-600 transition-colors">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full flex items-center justify-center gap-1 text-center text-xs font-medium text-zinc-500 mt-2 hover:text-indigo-600 transition-colors"
+            >
+              <Download size={14} />
               Download QR
-            </p>
+            </motion.button>
           </div>
         </div>
       </div>

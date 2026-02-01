@@ -207,7 +207,7 @@ export function URLComposer({ onShorten }: URLComposerProps) {
             </motion.button>
           </div>
           {errors.url && (
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-red-600">
+            <div className="flex px-4 items-center gap-2 text-xs sm:text-sm text-red-600">
               <AlertCircle size={16} />
               {errors.url}
             </div>
