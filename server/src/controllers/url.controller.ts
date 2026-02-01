@@ -35,6 +35,15 @@ class UrlController {
         return;
       }
 
+      if (
+        error instanceof Error &&
+        (error.message.includes("expiration date") ||
+          error.message.includes("Invalid expiration"))
+      ) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+
       console.error("Error creating shortened URL:", error);
       res.status(500).json({ error: "Failed to create shortened URL" });
     }

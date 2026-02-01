@@ -30,10 +30,11 @@ class UrlService {
    * Create a new shortened URL with automatic UTM extraction and cleaning
    *
    * Process:
-   * 1. Extract UTM params from original_url query string
-   * 2. Clean UTM params from original_url (keeps URL clean)
-   * 3. Merge extracted params with DTO params (DTO takes precedence)
-   * 4. Store cleaned URL and merged UTM params separately
+   * 1. Validate expiration_date format and ensure it's in the future
+   * 2. Extract UTM params from original_url query string
+   * 3. Clean UTM params from original_url (keeps URL clean)
+   * 4. Merge extracted params with DTO params (DTO takes precedence)
+   * 5. Store cleaned URL and merged UTM params separately
    *
    * @param dto - Data transfer object with original_url and optional custom slug/expiration/utm_params
    * @returns Created URL record with cleaned original_url and extracted utm_params
@@ -43,6 +44,11 @@ class UrlService {
    * Stored: { original_url: "https://example.com?foo=bar", utm_params: { source: "twitter" } }
    */
   async createShortenedUrl(dto: CreateUrlDto): Promise<UrlResponse> {
+    // Validate expiration date if provided
+    if (dto.expiration_date) {
+      this.validateExpirationDate(dto.expiration_date);
+    }
+
     const slug = dto.slug || (await this.generateUniqueSlug());
 
     await this.validateSlugUniqueness(slug);
@@ -174,6 +180,38 @@ class UrlService {
         user_agent: userAgent,
       })
       .catch((error) => console.error("Error recording click:", error));
+  }
+
+  /**
+   * Validate expiration date format and ensure it's in the future
+   * Accepts ISO 8601 format with timezone (e.g., "2026-02-15T14:30:00+00:00")
+   * or local datetime without timezone (converts to UTC)
+   *
+   * @param expirationDate - ISO 8601 datetime string
+   * @returns true if valid and in future, throws error otherwise
+   */
+  private validateExpirationDate(expirationDate: string): void {
+    if (!expirationDate) return; // Optional field
+
+    try {
+      const expiryTime = new Date(expirationDate).getTime();
+      const now = new Date().getTime();
+
+      if (isNaN(expiryTime)) {
+        throw new Error(
+          'Invalid expiration date format. Use ISO 8601 format (e.g., "2026-02-15T14:30:00")',
+        );
+      }
+
+      if (expiryTime <= now) {
+        throw new Error("Expiration date must be in the future");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Invalid expiration date");
+    }
   }
 }
 

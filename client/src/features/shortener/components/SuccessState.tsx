@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { Copy, ExternalLink, Check, QrCode, BarChart3 } from "lucide-react";
+import { ShortenResponse } from "../services/url.service";
 
 function SkeletonLoader() {
   return (
@@ -32,13 +33,15 @@ function SkeletonLoader() {
   );
 }
 
-export function SuccessState() {
+interface SuccessStateProps {
+  data: ShortenResponse;
+}
+
+export function SuccessState({ data }: SuccessStateProps) {
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
-  const shortUrl = "https://symph.live/launch-24";
-  const shortCode = "launch-24";
 
   useEffect(() => {
     // Simulate loading for 0.5 seconds
@@ -59,13 +62,13 @@ export function SuccessState() {
   }, [isLoading]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(shortUrl);
+    navigator.clipboard.writeText(data.short_url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleViewDashboard = () => {
-    navigate(`/dashboard/${shortCode}`);
+    navigate(`/dashboard/${data.slug}`);
   };
 
   if (isLoading) {
@@ -88,10 +91,12 @@ export function SuccessState() {
             </h3>
             <div className="flex items-center gap-3 flex-wrap">
               <a
-                href="#"
-                className="text-3xl md:text-4xl font-bold text-indigo-600 hover:text-indigo-700 tracking-tight transition-colors"
+                href={data.short_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-2xl md:text-3xl font-bold text-indigo-600 hover:text-indigo-700 tracking-tight transition-colors break-all"
               >
-                symph.live/launch-24
+                {data.short_url.replace(/^https?:\/\//, "")}
               </a>
             </div>
           </div>
@@ -114,7 +119,9 @@ export function SuccessState() {
             <motion.a
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              href="#"
+              href={data.short_url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-all"
             >
               <ExternalLink size={16} />

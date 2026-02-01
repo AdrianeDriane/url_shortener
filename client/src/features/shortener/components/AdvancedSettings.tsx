@@ -1,10 +1,25 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Calendar, ChevronDown, Info, Settings2 } from "lucide-react";
+import {
+  AlertCircle,
+  Calendar,
+  ChevronDown,
+  Info,
+  Settings2,
+} from "lucide-react";
 import { Tooltip } from "./Tooltip";
+import { apiConfig } from "../../../config/api";
 
 interface AdvancedSettingsProps {
   isOpen: boolean;
   onToggle: () => void;
+  slug: string;
+  onSlugChange: (value: string) => void;
+  expirationDate: string;
+  onExpirationChange: (value: string) => void;
+  utmParams: Record<string, string>;
+  onUtmParamChange: (field: string, value: string) => void;
+  slugError?: string;
+  expirationError?: string;
 }
 
 const utmFields = [
@@ -30,7 +45,18 @@ const utmFields = [
   },
 ];
 
-export function AdvancedSettings({ isOpen, onToggle }: AdvancedSettingsProps) {
+export function AdvancedSettings({
+  isOpen,
+  onToggle,
+  slug,
+  onSlugChange,
+  expirationDate,
+  onExpirationChange,
+  utmParams,
+  onUtmParamChange,
+  slugError,
+  expirationError,
+}: AdvancedSettingsProps) {
   return (
     <div className="border-t border-zinc-100 mx-2">
       <button
@@ -74,15 +100,23 @@ export function AdvancedSettings({ isOpen, onToggle }: AdvancedSettingsProps) {
                   </div>
                   <div className="flex items-center">
                     <span className="bg-zinc-50 border border-r-0 border-zinc-200 text-zinc-500 px-3 py-2.5 rounded-l-lg text-sm font-mono">
-                      symph.live/
+                      {apiConfig.baseURL.replace(/^https?:\/\//, "")}/
                     </span>
                     <input
                       type="text"
                       placeholder="custom-slug"
                       maxLength={20}
+                      value={slug}
+                      onChange={(e) => onSlugChange(e.target.value)}
                       className="flex-1 bg-white border border-zinc-200 text-zinc-900 px-3 py-2.5 rounded-r-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     />
                   </div>
+                  {slugError && (
+                    <div className="flex items-center gap-2 text-xs text-red-600 mt-2">
+                      <AlertCircle size={14} />
+                      {slugError}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -103,9 +137,17 @@ export function AdvancedSettings({ isOpen, onToggle }: AdvancedSettingsProps) {
                     </div>
                     <input
                       type="datetime-local"
+                      value={expirationDate}
+                      onChange={(e) => onExpirationChange(e.target.value)}
                       className="w-full bg-white border border-zinc-200 text-zinc-900 pl-10 pr-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     />
                   </div>
+                  {expirationError && (
+                    <div className="flex items-center gap-2 text-xs text-red-600 mt-2">
+                      <AlertCircle size={14} />
+                      {expirationError}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -119,7 +161,7 @@ export function AdvancedSettings({ isOpen, onToggle }: AdvancedSettingsProps) {
                       size={14}
                       className="text-zinc-400 cursor-help hover:text-zinc-600"
                     />
-                    <Tooltip text="UTM parameters track campaign source, medium, and content in analytics" />
+                    <Tooltip text="UTM parameters track campaign source, medium, and content in analytics (input fields override URL parameters)" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -140,6 +182,10 @@ export function AdvancedSettings({ isOpen, onToggle }: AdvancedSettingsProps) {
                       <input
                         type="text"
                         placeholder={`utm_${field.toLowerCase()}`}
+                        value={utmParams[field] || ""}
+                        onChange={(e) =>
+                          onUtmParamChange(field, e.target.value)
+                        }
                         className="w-full bg-zinc-50/50 border border-zinc-200 text-zinc-900 px-3 py-2 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                       />
                     </div>

@@ -2,9 +2,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { URLComposer } from "../features/shortener/components/URLComposer";
 import { SuccessState } from "../features/shortener/components/SuccessState";
+import { ShortenResponse } from "../features/shortener/services/url.service";
 
 function HomePage() {
-  const [hasShortened, setHasShortened] = useState(false);
+  const [shortenedData, setShortenedData] = useState<ShortenResponse | null>(
+    null,
+  );
 
   return (
     <div className="bg-[#fafafa] pb-20">
@@ -33,15 +36,15 @@ function HomePage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="w-full"
           >
-            <URLComposer onShorten={() => setHasShortened(true)} />
+            <URLComposer onShorten={setShortenedData} />
           </motion.div>
         </section>
 
         {/* Success State - Conditionally Rendered */}
         <AnimatePresence>
-          {hasShortened && (
+          {shortenedData && (
             <section>
-              <SuccessState />
+              <SuccessState data={shortenedData} />
             </section>
           )}
         </AnimatePresence>
