@@ -93,7 +93,7 @@ export function SuccessState({ data }: SuccessStateProps) {
               <a
                 href={data.short_url}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
                 className="text-2xl md:text-3xl font-bold text-indigo-600 hover:text-indigo-700 tracking-tight transition-colors break-all"
               >
                 {data.short_url.replace(/^https?:\/\//, "")}
@@ -121,7 +121,7 @@ export function SuccessState({ data }: SuccessStateProps) {
               whileTap={{ scale: 0.98 }}
               href={data.short_url}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener"
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-all"
             >
               <ExternalLink size={16} />
