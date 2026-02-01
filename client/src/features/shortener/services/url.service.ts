@@ -19,6 +19,28 @@ export interface ShortenResponse {
   createdAt: string;
 }
 
+export interface ClickLog {
+  id: string;
+  referrer: string | null;
+  user_agent: string | null;
+  created_at: string;
+}
+
+export interface AnalyticsResponse {
+  url: {
+    id: string;
+    original_url: string;
+    slug: string;
+    expiration_date: string | null;
+    utm_params: Record<string, string> | null;
+    click_count: number;
+    expired_access_count: number;
+    createdAt: string;
+  } | null;
+  clicks: ClickLog[];
+  isExpired: boolean;
+}
+
 class UrlService {
   private axiosInstance: AxiosInstance;
 
@@ -66,6 +88,34 @@ class UrlService {
         },
       });
       console.error("Error creating shortened URL:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Get analytics for a shortened URL
+   * GET /api/analytics/:slug
+   */
+  async getAnalytics(slug: string): Promise<AnalyticsResponse | null> {
+    try {
+      const response = await this.axiosInstance.get<AnalyticsResponse>(
+        `/api/analytics/${slug}`,
+      );
+      return response.data;
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.error
+          ? error.response.data.error
+          : "Failed to fetch analytics.";
+
+      toast.error(errorMessage, {
+        style: {
+          backgroundColor: "#fee2e2",
+          color: "#991b1b",
+          border: "1px solid #fca5a5",
+        },
+      });
+      console.error("Error fetching analytics:", error);
       return null;
     }
   }

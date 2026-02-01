@@ -156,6 +156,63 @@ class UrlService {
     return !!result;
   }
 
+  /**
+   * Get analytics data for a specific shortened URL
+   * Includes URL metadata, click counts, and recent click logs
+   *
+   * @param slug - The shortened URL slug
+   * @returns Analytics data including URL info and click logs
+   */
+  async getAnalytics(slug: string): Promise<{
+    url: {
+      id: string;
+      original_url: string;
+      slug: string;
+      expiration_date: string | null;
+      utm_params: UtmParams | null;
+      click_count: number;
+      expired_access_count: number;
+      createdAt: string;
+    } | null;
+    clicks: {
+      id: string;
+      referrer: string | null;
+      user_agent: string | null;
+      created_at: string;
+    }[];
+    isExpired: boolean;
+  }> {
+    const url = await db("urls")
+      .where({ slug })
+      .select(
+        "id",
+        "original_url",
+        "slug",
+        "expiration_date",
+        "utm_params",
+        "click_count",
+        "expired_access_count",
+        "createdAt",
+      )
+      .first();
+
+    if (!url) {
+      return { url: null, clicks: [], isExpired: false };
+    }
+
+    const isExpired = url.expiration_date
+      ? new Date(url.expiration_date) < new Date()
+      : false;
+
+    const clicks = await db("clicks")
+      .where({ url_id: url.id })
+      .select("id", "referrer", "user_agent", "created_at")
+      .orderBy("created_at", "desc")
+      .limit(50);
+
+    return { url, clicks, isExpired };
+  }
+
   private incrementClickCountAsync(urlId: string): void {
     db("urls")
       .where({ id: urlId })
@@ -187,7 +244,6 @@ class UrlService {
       })
       .catch((error) => console.error("Error recording click:", error));
   }
-
 }
 
 const urlService = new UrlService();

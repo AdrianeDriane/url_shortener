@@ -16,6 +16,14 @@ router.post("/api/shorten", validateShortenRequest, (req, res) =>
 );
 
 /**
+ * GET /api/analytics/:slug
+ * Get analytics data for a shortened URL
+ */
+router.get("/api/analytics/:slug", validateSlugParam, (req, res) =>
+  urlController.getAnalytics(req, res),
+);
+
+/**
  * GET /:slug
  * Redirect to original URL with click tracking
  */
