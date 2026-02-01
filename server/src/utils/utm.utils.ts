@@ -25,6 +25,14 @@ const UTM_FIELD_TO_PARAM: Record<keyof UtmParams, string> = {
   content: `${UTM_PREFIX}content`,
 };
 
+const UTM_PARAM_TO_FIELD: Record<string, keyof UtmParams> = {
+  utm_source: "source",
+  utm_medium: "medium",
+  utm_campaign: "campaign",
+  utm_term: "term",
+  utm_content: "content",
+};
+
 /**
  * Append UTM parameters to a URL
  * Handles existing query strings safely using Node.js URL API
@@ -66,6 +74,85 @@ export function isValidUtmParams(utmParams: any): utmParams is UtmParams {
   if (!isObject(utmParams)) return false;
 
   return hasOnlyValidKeys(utmParams) && allValuesAreStrings(utmParams);
+}
+
+/**
+ * Extract UTM parameters from a URL string
+ * Parses query string and extracts utm_* parameters into internal schema
+ *
+ * @param urlString - URL to extract UTM params from
+ * @returns Extracted UTM params or null if none found
+ *
+ * @example
+ * extractUtmParams("https://example.com?utm_source=twitter&foo=bar")
+ * Returns: { source: "twitter" }
+ */
+export function extractUtmParams(urlString: string): UtmParams | null {
+  try {
+    const url = new URL(urlString);
+    const extracted: UtmParams = {};
+    let hasUtmParams = false;
+
+    Object.entries(UTM_PARAM_TO_FIELD).forEach(([urlParam, fieldKey]) => {
+      const value = url.searchParams.get(urlParam);
+      if (value) {
+        extracted[fieldKey] = value;
+        hasUtmParams = true;
+      }
+    });
+
+    return hasUtmParams ? extracted : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Remove UTM parameters from a URL string
+ * Cleans all utm_* query parameters while preserving other params
+ *
+ * @param urlString - URL to clean
+ * @returns URL with UTM params removed
+ *
+ * @example
+ * removeUtmParams("https://example.com?utm_source=twitter&foo=bar")
+ * Returns: "https://example.com?foo=bar"
+ */
+export function removeUtmParams(urlString: string): string {
+  try {
+    const url = new URL(urlString);
+    
+    Object.keys(UTM_PARAM_TO_FIELD).forEach((utmParam) => {
+      url.searchParams.delete(utmParam);
+    });
+
+    return url.toString();
+  } catch (error) {
+    return urlString;
+  }
+}
+
+/**
+ * Merge UTM parameters with precedence rules
+ * DTO params take precedence over extracted params
+ *
+ * @param extractedParams - UTM params extracted from URL
+ * @param dtoParams - UTM params provided in request DTO
+ * @returns Merged UTM params with DTO taking precedence
+ *
+ * @example
+ * mergeUtmParams({ source: "url" }, { source: "dto", campaign: "new" })
+ * Returns: { source: "dto", campaign: "new" }
+ */
+export function mergeUtmParams(
+  extractedParams: UtmParams | null,
+  dtoParams: UtmParams | null | undefined,
+): UtmParams | null {
+  if (!extractedParams && !dtoParams) return null;
+  if (!extractedParams) return dtoParams || null;
+  if (!dtoParams) return extractedParams;
+
+  return { ...extractedParams, ...dtoParams };
 }
 
 // Helper type predicates

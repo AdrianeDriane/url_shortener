@@ -1,7 +1,13 @@
 import { db } from "../db/knex";
 import cacheService from "./cache.service";
 import { generateSlug } from "../utils/slug.utils";
-import { UtmParams, appendUtmParams } from "../utils/utm.utils";
+import {
+  UtmParams,
+  appendUtmParams,
+  extractUtmParams,
+  removeUtmParams,
+  mergeUtmParams,
+} from "../utils/utm.utils";
 
 interface CreateUrlDto {
   original_url: string;
@@ -21,23 +27,36 @@ interface UrlResponse {
 
 class UrlService {
   /**
-   * Create a new shortened URL
-   * Validates input, generates unique slug, stores in DB
+   * Create a new shortened URL with automatic UTM extraction and cleaning
    *
-   * @param dto - Data transfer object with original_url and optional custom slug/expiration
-   * @returns Created URL record
+   * Process:
+   * 1. Extract UTM params from original_url query string
+   * 2. Clean UTM params from original_url (keeps URL clean)
+   * 3. Merge extracted params with DTO params (DTO takes precedence)
+   * 4. Store cleaned URL and merged UTM params separately
+   *
+   * @param dto - Data transfer object with original_url and optional custom slug/expiration/utm_params
+   * @returns Created URL record with cleaned original_url and extracted utm_params
+   *
+   * @example
+   * Input: { original_url: "https://example.com?utm_source=twitter&foo=bar" }
+   * Stored: { original_url: "https://example.com?foo=bar", utm_params: { source: "twitter" } }
    */
   async createShortenedUrl(dto: CreateUrlDto): Promise<UrlResponse> {
     const slug = dto.slug || (await this.generateUniqueSlug());
 
     await this.validateSlugUniqueness(slug);
 
+    const extractedUtmParams = extractUtmParams(dto.original_url);
+    const cleanedUrl = removeUtmParams(dto.original_url);
+    const finalUtmParams = mergeUtmParams(extractedUtmParams, dto.utm_params);
+
     const [created] = await db("urls")
       .insert({
-        original_url: dto.original_url,
+        original_url: cleanedUrl,
         slug,
         expiration_date: dto.expiration_date || null,
-        utm_params: dto.utm_params || null,
+        utm_params: finalUtmParams,
       })
       .returning([
         "id",
