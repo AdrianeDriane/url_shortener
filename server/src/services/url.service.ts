@@ -13,7 +13,7 @@ interface UrlResponse {
   original_url: string;
   slug: string;
   expiration_date: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 class UrlService {
@@ -50,15 +50,29 @@ class UrlService {
    * Retrieve a shortened URL and handle redirection logic
    * Manages cache, expiration checking, and analytics tracking
    *
+   * Logic flow:
+   * 1. Get URL from cache
+   * 2. If not found or expired, return null
+   * 3. Increment click count (async)
+   * 4. Record click details to clicks table (async)
+   * 5. Return URL data
+   *
    * @param slug - The shortened URL slug
+   * @param referrer - Optional HTTP Referer header value
+   * @param userAgent - Optional HTTP User-Agent header value
    * @returns URL data or null if not found/expired
    */
-  async getAndTrackUrl(slug: string) {
+  async getAndTrackUrl(
+    slug: string,
+    referrer?: string | null,
+    userAgent?: string | null,
+  ) {
     const url = await cacheService.getLink(slug);
 
     if (!url) return null;
 
     this.incrementClickCountAsync(url.id);
+    this.trackClickAsync(url.id, referrer || null, userAgent || null);
 
     return url;
   }
@@ -118,6 +132,20 @@ class UrlService {
       .catch((error) =>
         console.error("Error incrementing expired access count:", error),
       );
+  }
+
+  private trackClickAsync(
+    urlId: string,
+    referrer: string | null,
+    userAgent: string | null,
+  ): void {
+    db("clicks")
+      .insert({
+        url_id: urlId,
+        referrer,
+        user_agent: userAgent,
+      })
+      .catch((error) => console.error("Error recording click:", error));
   }
 }
 
