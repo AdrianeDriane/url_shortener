@@ -1,15 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { Copy, ExternalLink, Check, QrCode } from "lucide-react";
+import { Copy, ExternalLink, Check, QrCode, BarChart3 } from "lucide-react";
 
 export function SuccessState() {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
   const shortUrl = "https://symph.live/launch-24";
+  const shortCode = "launch-24";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shortUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleViewDashboard = () => {
+    navigate(`/dashboard/${shortCode}`);
   };
 
   return (
@@ -59,6 +66,16 @@ export function SuccessState() {
               <ExternalLink size={16} />
               Open
             </motion.a>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleViewDashboard}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
+            >
+              <BarChart3 size={16} />
+              Visit Dashboard
+            </motion.button>
           </div>
         </div>
 
