@@ -84,6 +84,24 @@ function formatDate(dateString: string): string {
   }
 }
 
+function formatDateTime(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Unknown date";
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZoneName: "short",
+    });
+  } catch {
+    return "Unknown date";
+  }
+}
+
 function parseReferrer(referrer: string | null): string {
   if (!referrer) return "Direct";
   try {
@@ -532,8 +550,8 @@ export function AnalyticsDashboard() {
               </div>
               {url.expiration_date && (
                 <p className="text-xs text-zinc-500 mt-2">
-                  {isExpired ? "Expired" : "Expires"}{" "}
-                  {formatDate(url.expiration_date)}
+                  {isExpired ? "Expired on" : "Expires on"}{" "}
+                  {formatDateTime(url.expiration_date)}
                 </p>
               )}
             </div>
@@ -608,7 +626,7 @@ export function AnalyticsDashboard() {
 
         {/* Expired Access Count */}
         {url.expired_access_count > 0 && (
-          <ScrollReveal className="col-span-4">
+          <ScrollReveal className="col-span-2 md:col-span-4">
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 shadow-sm">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
