@@ -171,18 +171,6 @@ npm run lint
 
 ---
 
-## Environment Variables
-
-Configure in `.env` at the project root:
-
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-This is used in `config/api.ts` to set the API base URL.
-
----
-
 ## Styling
 
 - **Tailwind CSS** for utility-first styling
