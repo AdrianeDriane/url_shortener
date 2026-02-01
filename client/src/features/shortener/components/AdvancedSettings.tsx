@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import React from "react";
 import {
   AlertCircle,
   Calendar,
@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Tooltip } from "./Tooltip";
 import { apiConfig } from "../../../config/api";
+import { validateSlug, validateUtmField } from "../utils/validation";
 
 interface AdvancedSettingsProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ interface AdvancedSettingsProps {
   expirationError?: string;
 }
 
-const utmFields = [
+const UTM_FIELDS = [
   {
     field: "Source",
     description: "Where the traffic comes from (e.g., google, facebook)",
@@ -46,28 +47,6 @@ const utmFields = [
   },
 ];
 
-const validateSlug = (slug: string): string | undefined => {
-  if (!slug) return undefined;
-  if (slug.length !== 8) {
-    return "Slug must be exactly 8 characters";
-  }
-  if (!/^[a-zA-Z0-9]+$/.test(slug)) {
-    return "Slug can only contain letters and numbers";
-  }
-  return undefined;
-};
-
-const validateUtmField = (value: string): string | undefined => {
-  if (!value) return undefined;
-  if (value.length > 100) {
-    return "Maximum 100 characters";
-  }
-  if (!/^[a-zA-Z0-9._-]+$/.test(value)) {
-    return "Only letters, numbers, dots, hyphens, and underscores allowed";
-  }
-  return undefined;
-};
-
 export function AdvancedSettings({
   isOpen,
   onToggle,
@@ -80,9 +59,15 @@ export function AdvancedSettings({
   slugError,
   expirationError,
 }: AdvancedSettingsProps) {
-  const localSlugError = validateSlug(slug);
-  const displaySlugError = slugError || localSlugError;
-  const [utmErrors, setUtmErrors] = React.useState<Record<string, string>>({});
+  const [utmErrors, setUtmErrors] = useState<Record<string, string>>({});
+
+  const displaySlugError = slugError || validateSlug(slug);
+
+  const handleUtmChange = (field: string, value: string) => {
+    onUtmParamChange(field, value);
+    const error = validateUtmField(value);
+    setUtmErrors((prev) => ({ ...prev, [field]: error || "" }));
+  };
   return (
     <div className="border-t border-zinc-100 mx-2">
       <button
@@ -203,7 +188,7 @@ export function AdvancedSettings({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {utmFields.map(({ field, description }) => (
+                  {UTM_FIELDS.map(({ field, description }) => (
                     <div key={field} className="space-y-1">
                       <div className="flex items-center gap-1">
                         <label className="text-[10px] text-zinc-400 font-medium ml-1">
@@ -222,15 +207,7 @@ export function AdvancedSettings({
                         placeholder={`utm_${field.toLowerCase()}`}
                         maxLength={100}
                         value={utmParams[field] || ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          onUtmParamChange(field, value);
-                          const error = validateUtmField(value);
-                          setUtmErrors((prev) => ({
-                            ...prev,
-                            [field]: error || "",
-                          }));
-                        }}
+                        onChange={(e) => handleUtmChange(field, e.target.value)}
                         className={`w-full bg-zinc-50/50 border text-zinc-900 px-3 py-2 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${
                           utmErrors[field]
                             ? "border-red-300 focus:border-red-500"
