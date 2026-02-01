@@ -41,12 +41,15 @@ class UrlController {
   /**
    * GET /:slug
    * Redirect to the original URL with analytics tracking
+   * Extracts referrer and user-agent headers for click analytics
    */
   async redirectToOriginal(req: Request, res: Response): Promise<void> {
     try {
       const { slug } = req.params;
+      const referrer = req.get("referer") || null;
+      const userAgent = req.get("user-agent") || null;
 
-      const url = await urlService.getAndTrackUrl(slug);
+      const url = await urlService.getAndTrackUrl(slug, referrer, userAgent);
 
       if (!url) {
         res.redirect(`${config.frontend.url}/404`);
