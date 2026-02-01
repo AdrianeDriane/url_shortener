@@ -15,7 +15,7 @@ interface TooltipProps {
 
 function Tooltip({ text }: TooltipProps) {
   return (
-    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-900 text-white text-xs rounded-lg whitespace-normal max-w-[220px] text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-900 text-white text-xs rounded-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
       {text}
       <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-900"></div>
     </div>
@@ -159,7 +159,7 @@ export function URLComposer({ onShorten }: URLComposerProps) {
                           size={14}
                           className="text-zinc-400 cursor-help hover:text-zinc-600"
                         />
-                        <Tooltip text="UTM parameters track campaign source, medium, and content in analytics (inputs override URL query parameters)" />
+                        <Tooltip text="UTM parameters track campaign source, medium, and content in analytics" />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
