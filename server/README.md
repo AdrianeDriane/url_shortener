@@ -267,8 +267,8 @@ flowchart TD
     E --> F["Store in Cache\n(with smart TTL)"]
     F --> G[Return URL]
 
-    style B fill:#e1f5fe
-    style E fill:#fff3e0
+    style B fill:#e1f5fe,color:#333
+    style E fill:#fff3e0,color:#333
 ```
 
 #### Passive Expiry Strategy
@@ -343,9 +343,9 @@ flowchart TD
     G --> H[(Database Storage)]
     H --> I["Stored:\noriginal_url = '.../page?foo=bar'\nutm_params = { source: 'new', campaign: 'promo' }"]
 
-    style A fill:#fff3e0
-    style H fill:#e8f5e9
-    style I fill:#e8f5e9
+    style A fill:#fff3e0,color:#333
+    style H fill:#e8f5e9,color:#333
+    style I fill:#e8f5e9,color:#333
 ```
 
 #### On Redirect
@@ -356,9 +356,9 @@ flowchart TD
     B["Stored UTM\n{ source: 'twitter', campaign: 'promo' }"] --> C
     C --> D["Final Redirect\nhttps://example.com/page?foo=bar&utm_source=twitter&utm_campaign=promo"]
 
-    style A fill:#e3f2fd
-    style B fill:#e3f2fd
-    style D fill:#c8e6c9
+    style A fill:#e3f2fd,color:#333
+    style B fill:#e3f2fd,color:#333
+    style D fill:#c8e6c9,color:#333
 ```
 
 ---
