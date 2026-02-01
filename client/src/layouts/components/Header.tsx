@@ -33,7 +33,7 @@ export function Header() {
 
           <nav className="flex items-center gap-2 sm:gap-4">
             <a
-              href="/analytics"
+              href="/dashboard"
               className="hidden sm:inline text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
             >
               Dashboard
@@ -94,7 +94,7 @@ export function Header() {
                   </div>
                   <nav className="flex flex-col gap-1">
                     <a
-                      href="/analytics"
+                      href="/dashboard"
                       className="py-3 px-3 text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors"
                       onClick={() => setIsOpen(false)}
                     >

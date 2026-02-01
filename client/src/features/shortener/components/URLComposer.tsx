@@ -45,7 +45,7 @@ export function URLComposer({ onShorten }: URLComposerProps) {
               required
             />
           </div>
-          <div className="mt-3 sm:mt-0 sm:shrink-0">
+          <div className="mt-3 sm:mt-0 pr-0 sm:pr-3 sm:shrink-0">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
