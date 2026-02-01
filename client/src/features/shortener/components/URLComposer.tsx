@@ -6,7 +6,21 @@ import {
   Link as LinkIcon,
   ChevronDown,
   ArrowRight,
+  Info,
 } from "lucide-react";
+
+interface TooltipProps {
+  text: string;
+}
+
+function Tooltip({ text }: TooltipProps) {
+  return (
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-900 text-white text-xs rounded-lg whitespace-normal max-w-[220px] text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+      {text}
+      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-900"></div>
+    </div>
+  );
+}
 
 interface URLComposerProps {
   onShorten: () => void;
@@ -23,7 +37,7 @@ export function URLComposer({ onShorten }: URLComposerProps) {
   };
 
   return (
-    <div className="w-full bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="w-full bg-white border border-zinc-200 rounded-2xl shadow-sm">
       <form onSubmit={handleSubmit} className="p-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
           <div className="relative group flex-1">
@@ -81,14 +95,23 @@ export function URLComposer({ onShorten }: URLComposerProps) {
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="overflow-hidden"
+                className="overflow-visible"
               >
                 <div className="px-2 pb-6 pt-2 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                        Custom Slug
-                      </label>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                          Custom Slug
+                        </label>
+                        <div className="group relative">
+                          <Info
+                            size={14}
+                            className="text-zinc-400 cursor-help hover:text-zinc-600"
+                          />
+                          <Tooltip text="Create a memorable custom URL slug instead of a random code" />
+                        </div>
+                      </div>
                       <div className="flex items-center">
                         <span className="bg-zinc-50 border border-r-0 border-zinc-200 text-zinc-500 px-3 py-2.5 rounded-l-lg text-sm font-mono">
                           symph.live/
@@ -102,9 +125,18 @@ export function URLComposer({ onShorten }: URLComposerProps) {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                        Expiration
-                      </label>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                          Expiration
+                        </label>
+                        <div className="group relative">
+                          <Info
+                            size={14}
+                            className="text-zinc-400 cursor-help hover:text-zinc-600"
+                          />
+                          <Tooltip text="Set when this shortened URL will expire and become inactive" />
+                        </div>
+                      </div>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-400">
                           <Calendar size={16} />
@@ -118,24 +150,64 @@ export function URLComposer({ onShorten }: URLComposerProps) {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                      UTM Builder
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                        UTM Builder
+                      </label>
+                      <div className="group relative">
+                        <Info
+                          size={14}
+                          className="text-zinc-400 cursor-help hover:text-zinc-600"
+                        />
+                        <Tooltip text="UTM parameters track campaign source, medium, and content in analytics (inputs override URL query parameters)" />
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {["Source", "Medium", "Campaign", "Term", "Content"].map(
-                        (field) => (
-                          <div key={field} className="space-y-1">
+                      {[
+                        {
+                          field: "Source",
+                          description:
+                            "Where the traffic comes from (e.g., google, facebook)",
+                        },
+                        {
+                          field: "Medium",
+                          description:
+                            "The marketing medium (e.g., email, social, cpc)",
+                        },
+                        {
+                          field: "Campaign",
+                          description: "The campaign name or identifier",
+                        },
+                        {
+                          field: "Term",
+                          description: "The search keywords if applicable",
+                        },
+                        {
+                          field: "Content",
+                          description:
+                            "Used to differentiate similar content or links",
+                        },
+                      ].map(({ field, description }) => (
+                        <div key={field} className="space-y-1">
+                          <div className="flex items-center gap-1">
                             <label className="text-[10px] text-zinc-400 font-medium ml-1">
                               {field}
                             </label>
-                            <input
-                              type="text"
-                              placeholder={`utm_${field.toLowerCase()}`}
-                              className="w-full bg-zinc-50/50 border border-zinc-200 text-zinc-900 px-3 py-2 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                            />
+                            <div className="group relative">
+                              <Info
+                                size={12}
+                                className="text-zinc-300 cursor-help hover:text-zinc-500"
+                              />
+                              <Tooltip text={description} />
+                            </div>
                           </div>
-                        ),
-                      )}
+                          <input
+                            type="text"
+                            placeholder={`utm_${field.toLowerCase()}`}
+                            className="w-full bg-zinc-50/50 border border-zinc-200 text-zinc-900 px-3 py-2 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
