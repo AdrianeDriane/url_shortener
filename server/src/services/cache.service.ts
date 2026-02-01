@@ -1,5 +1,6 @@
 import { LRUCache } from "lru-cache";
 import { db } from "../db/knex";
+import { config } from "../config/index";
 
 interface CachedUrl {
   id: string;
@@ -14,11 +15,12 @@ interface CachedUrl {
 
 class UrlCacheService {
   private cache: LRUCache<string, CachedUrl>;
-  private readonly DEFAULT_TTL_MS = 5 * 60 * 1000;
+  private readonly DEFAULT_TTL_MS = config.cache.defaultTtlMs;
+  private readonly MAX_ITEMS = config.cache.maxItems;
 
   constructor() {
     this.cache = new LRUCache<string, CachedUrl>({
-      max: 1000,
+      max: this.MAX_ITEMS,
       ttl: this.DEFAULT_TTL_MS,
       updateAgeOnGet: true,
     });
@@ -53,32 +55,6 @@ class UrlCacheService {
     return url;
   }
 
-  private async fetchFromDatabase(slug: string): Promise<CachedUrl | null> {
-    try {
-      return await db("urls").where({ slug }).first();
-    } catch (error) {
-      console.error(`Database error fetching slug: ${slug}`, error);
-      return null;
-    }
-  }
-
-  private isExpired(url: CachedUrl): boolean {
-    if (!url.expiration_date) return false;
-    return Date.now() > new Date(url.expiration_date).getTime();
-  }
-
-  private calculateOptimalTtl(expirationDate: string | null): number {
-    if (!expirationDate) return this.DEFAULT_TTL_MS;
-
-    const timeUntilExpiration = new Date(expirationDate).getTime() - Date.now();
-    return Math.min(this.DEFAULT_TTL_MS, timeUntilExpiration);
-  }
-
-  private updateCacheEntry(slug: string, url: CachedUrl): void {
-    const ttl = this.calculateOptimalTtl(url.expiration_date);
-    this.cache.set(slug, url, { ttl });
-  }
-
   /**
    *
    * Manually remove a slug from cache
@@ -109,6 +85,32 @@ class UrlCacheService {
    */
   clear(): void {
     this.cache.clear();
+  }
+
+  private async fetchFromDatabase(slug: string): Promise<CachedUrl | null> {
+    try {
+      return await db("urls").where({ slug }).first();
+    } catch (error) {
+      console.error(`Database error fetching slug: ${slug}`, error);
+      return null;
+    }
+  }
+
+  private isExpired(url: CachedUrl): boolean {
+    if (!url.expiration_date) return false;
+    return Date.now() > new Date(url.expiration_date).getTime();
+  }
+
+  private calculateOptimalTtl(expirationDate: string | null): number {
+    if (!expirationDate) return this.DEFAULT_TTL_MS;
+
+    const timeUntilExpiration = new Date(expirationDate).getTime() - Date.now();
+    return Math.min(this.DEFAULT_TTL_MS, timeUntilExpiration);
+  }
+
+  private updateCacheEntry(slug: string, url: CachedUrl): void {
+    const ttl = this.calculateOptimalTtl(url.expiration_date);
+    this.cache.set(slug, url, { ttl });
   }
 }
 
