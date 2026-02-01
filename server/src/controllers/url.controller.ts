@@ -9,12 +9,13 @@ class UrlController {
    */
   async createShortenedUrl(req: Request, res: Response): Promise<void> {
     try {
-      const { original_url, slug, expiration_date } = req.body;
+      const { original_url, slug, expiration_date, utm_params } = req.body;
 
       const created = await urlService.createShortenedUrl({
         original_url,
         slug,
         expiration_date,
+        utm_params,
       });
 
       const shortenedUrl = `${config.server.baseUrl}/${created.slug}`;
@@ -25,6 +26,7 @@ class UrlController {
         short_url: shortenedUrl,
         slug: created.slug,
         expiration_date: created.expiration_date,
+        utm_params: created.utm_params,
         createdAt: created.createdAt,
       });
     } catch (error) {

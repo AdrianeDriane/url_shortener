@@ -1,11 +1,13 @@
 import { db } from "../db/knex";
 import cacheService from "./cache.service";
 import { generateSlug } from "../utils/slug.utils";
+import { UtmParams, appendUtmParams } from "../utils/utm.utils";
 
 interface CreateUrlDto {
   original_url: string;
   slug?: string;
   expiration_date?: string;
+  utm_params?: UtmParams | null;
 }
 
 interface UrlResponse {
@@ -13,6 +15,7 @@ interface UrlResponse {
   original_url: string;
   slug: string;
   expiration_date: string | null;
+  utm_params?: UtmParams | null;
   createdAt: string;
 }
 
@@ -34,12 +37,14 @@ class UrlService {
         original_url: dto.original_url,
         slug,
         expiration_date: dto.expiration_date || null,
+        utm_params: dto.utm_params || null,
       })
       .returning([
         "id",
         "original_url",
         "slug",
         "expiration_date",
+        "utm_params",
         "createdAt",
       ]);
 
@@ -73,6 +78,10 @@ class UrlService {
 
     this.incrementClickCountAsync(url.id);
     this.trackClickAsync(url.id, referrer || null, userAgent || null);
+
+    if (url.utm_params) {
+      url.original_url = appendUtmParams(url.original_url, url.utm_params);
+    }
 
     return url;
   }

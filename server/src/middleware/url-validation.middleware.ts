@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { isValidUrl, isValidSlug } from "../utils/slug.utils";
+import { isValidUtmParams } from "../utils/utm.utils";
 
 /**
  * Validate POST /api/shorten request body
@@ -10,7 +11,7 @@ export function validateShortenRequest(
   res: Response,
   next: NextFunction,
 ): void {
-  const { original_url, slug, expiration_date } = req.body;
+  const { original_url, slug, expiration_date, utm_params } = req.body;
 
   if (!original_url) {
     res.status(400).json({ error: "original_url is required" });
@@ -23,19 +24,20 @@ export function validateShortenRequest(
   }
 
   if (slug && !isValidSlug(slug)) {
-    res
-      .status(400)
-      .json({ error: "slug must be 8 alphanumeric characters" });
+    res.status(400).json({ error: "slug must be 8 alphanumeric characters" });
     return;
   }
 
-  if (
-    expiration_date &&
-    new Date(expiration_date).getTime() <= Date.now()
-  ) {
-    res
-      .status(400)
-      .json({ error: "expiration_date must be in the future" });
+  if (expiration_date && new Date(expiration_date).getTime() <= Date.now()) {
+    res.status(400).json({ error: "expiration_date must be in the future" });
+    return;
+  }
+
+  if (utm_params && !isValidUtmParams(utm_params)) {
+    res.status(400).json({
+      error:
+        "utm_params must be an object with valid UTM fields (source, medium, campaign, term, content)",
+    });
     return;
   }
 

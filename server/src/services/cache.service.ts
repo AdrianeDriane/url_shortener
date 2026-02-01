@@ -1,12 +1,14 @@
 import { LRUCache } from "lru-cache";
 import { db } from "../db/knex";
 import { config } from "../config/index";
+import { UtmParams } from "../utils/utm.utils";
 
 interface CachedUrl {
   id: string;
   original_url: string;
   slug: string;
   expiration_date: string | null;
+  utm_params?: UtmParams | null;
   click_count: number;
   expired_access_count: number;
   created_at: string;
