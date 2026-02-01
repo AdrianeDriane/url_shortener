@@ -327,9 +327,17 @@ interface ActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
   clicks: ClickLog[];
+  limit: number;
+  onLimitChange: (limit: number) => void;
 }
 
-function ActivityModal({ isOpen, onClose, clicks }: ActivityModalProps) {
+function ActivityModal({
+  isOpen,
+  onClose,
+  clicks,
+  limit,
+  onLimitChange,
+}: ActivityModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -366,15 +374,26 @@ function ActivityModal({ isOpen, onClose, clicks }: ActivityModalProps) {
                   Recent Activity
                 </h2>
                 <p className="text-sm text-zinc-500">
-                  {clicks.length} click{clicks.length !== 1 ? "s" : ""} recorded
+                  Showing {clicks.length} click{clicks.length !== 1 ? "s" : ""}
                 </p>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
-              >
-                <X size={20} className="text-zinc-500" />
-              </button>
+              <div className="flex items-center gap-3">
+                <select
+                  value={limit}
+                  onChange={(e) => onLimitChange(Number(e.target.value))}
+                  className="px-3 py-1.5 text-sm bg-zinc-100 border-0 rounded-lg focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                >
+                  <option value={10}>Last 10</option>
+                  <option value={50}>Last 50</option>
+                  <option value={100}>Last 100</option>
+                </select>
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
+                >
+                  <X size={20} className="text-zinc-500" />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-auto">
@@ -434,6 +453,7 @@ export function AnalyticsDashboard() {
   const [copied, setCopied] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [showReferrerDrawer, setShowReferrerDrawer] = useState(false);
+  const [activityLimit, setActivityLimit] = useState(10);
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -445,6 +465,9 @@ export function AnalyticsDashboard() {
     }
     fetchAnalytics();
   }, [shortCode]);
+
+  // Filter clicks for the modal based on selected limit
+  const modalClicks = analytics?.clicks?.slice(0, activityLimit) ?? [];
 
   const handleCopy = () => {
     if (!analytics?.url) return;
@@ -758,7 +781,9 @@ export function AnalyticsDashboard() {
       <ActivityModal
         isOpen={showActivityModal}
         onClose={() => setShowActivityModal(false)}
-        clicks={clicks}
+        clicks={modalClicks}
+        limit={activityLimit}
+        onLimitChange={setActivityLimit}
       />
 
       <ReferrerDrawer

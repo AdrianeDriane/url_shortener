@@ -158,7 +158,7 @@ class UrlService {
 
   /**
    * Get analytics data for a specific shortened URL
-   * Includes URL metadata, click counts, and recent click logs
+   * Includes URL metadata, click counts, and click logs
    *
    * @param slug - The shortened URL slug
    * @returns Analytics data including URL info and click logs
@@ -207,8 +207,7 @@ class UrlService {
     const clicks = await db("clicks")
       .where({ url_id: url.id })
       .select("id", "referrer", "user_agent", "created_at")
-      .orderBy("created_at", "desc")
-      .limit(50);
+      .orderBy("created_at", "desc");
 
     return { url, clicks, isExpired };
   }
