@@ -73,7 +73,17 @@ export function isValidUtmParams(utmParams: any): utmParams is UtmParams {
 
   if (!isObject(utmParams)) return false;
 
-  return hasOnlyValidKeys(utmParams) && allValuesAreStrings(utmParams);
+  if (!hasOnlyValidKeys(utmParams) || !allValuesAreStrings(utmParams)) {
+    return false;
+  }
+
+  // Validate each UTM field value
+  // Max 100 characters, only alphanumeric, dots, hyphens, underscores
+  return Object.values(utmParams).every((value) => {
+    if (typeof value !== "string") return false;
+    if (value.length > 100) return false;
+    return /^[a-zA-Z0-9._-]+$/.test(value);
+  });
 }
 
 /**
@@ -121,7 +131,7 @@ export function extractUtmParams(urlString: string): UtmParams | null {
 export function removeUtmParams(urlString: string): string {
   try {
     const url = new URL(urlString);
-    
+
     Object.keys(UTM_PARAM_TO_FIELD).forEach((utmParam) => {
       url.searchParams.delete(utmParam);
     });
