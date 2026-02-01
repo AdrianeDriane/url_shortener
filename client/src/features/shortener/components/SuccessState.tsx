@@ -1,13 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { Copy, ExternalLink, Check, QrCode, BarChart3 } from "lucide-react";
 
+function SkeletonLoader() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.5, type: "spring" }}
+      className="w-full bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 md:p-8"
+    >
+      <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+        <div className="flex-1 w-full space-y-6">
+          <div className="space-y-2">
+            <div className="h-4 bg-zinc-200 rounded w-32 animate-pulse"></div>
+            <div className="h-10 bg-zinc-200 rounded w-64 animate-pulse"></div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="h-10 bg-zinc-200 rounded w-32 animate-pulse"></div>
+            <div className="h-10 bg-zinc-200 rounded w-24 animate-pulse"></div>
+            <div className="h-10 bg-zinc-200 rounded w-40 animate-pulse"></div>
+          </div>
+        </div>
+        <div className="flex-shrink-0">
+          <div className="w-40 h-40 bg-zinc-200 rounded-xl animate-pulse"></div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function SuccessState() {
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const ref = useRef<HTMLDivElement>(null);
   const shortUrl = "https://symph.live/launch-24";
   const shortCode = "launch-24";
+
+  useEffect(() => {
+    // Simulate loading for 0.5 seconds
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Scroll to this element when it's fully loaded
+    if (!isLoading && ref.current) {
+      setTimeout(() => {
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [isLoading]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shortUrl);
@@ -19,8 +68,13 @@ export function SuccessState() {
     navigate(`/dashboard/${shortCode}`);
   };
 
+  if (isLoading) {
+    return <SkeletonLoader />;
+  }
+
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, type: "spring" }}
