@@ -25,7 +25,7 @@ class UrlController {
         short_url: shortenedUrl,
         slug: created.slug,
         expiration_date: created.expiration_date,
-        created_at: created.created_at,
+        createdAt: created.createdAt,
       });
     } catch (error) {
       if (error instanceof Error && error.message.includes("already exists")) {
