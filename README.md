@@ -1,6 +1,50 @@
-# URL Shortener
+# URL Shortener | Symph Take Home Coding Assignment by Adriane Dilao
 
 A full-stack URL shortener application with analytics dashboard, built as part of the Symph Take Home Coding Assignment.
+
+## Table of Contents
+
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Setup Instructions](#setup-instructions)
+- [Troubleshooting](#troubleshooting-common-setup-issues)
+- [Documentation](#documentation)
+- [P.S.](#ps)
+
+---
+
+## Features
+
+### Core Features (MVP)
+
+- **URL Shortening** — Input any valid URL and receive a shortened link
+- **Random Slug Generation** — Auto-generated 8-character alphanumeric slugs
+- **URL Redirection** — Short links redirect to original destination URLs
+- **Client-side URL Validation** — Validates URL format before submission
+- **Copy to Clipboard** — One-click copy functionality for generated short links
+
+### Optional Features (Implemented)
+
+- **Custom Slugs** — Users can specify their own custom slug (8 characters max)
+- **Expiration Dates** — Set optional expiration date/time for shortened URLs
+- **UTM Parameters** — Add campaign tracking parameters (source, medium, campaign, term, content)
+- **Expired Link Handling** — Handles expired links with a user-friendly expired page
+
+### Additional Features (Beyond Requirements)
+
+- **Analytics Dashboard** — Comprehensive insights for each shortened URL:
+  - Total click count
+  - Traffic sources breakdown (referrer tracking)
+  - Device type detection (desktop/mobile)
+  - Recent activity log with timestamps
+  - Visual pie chart for traffic distribution
+- **Expired Access Tracking** — Tracks how many visitors attempted to access an expired link
+- **QR Code Generation** — Generate downloadable QR codes for any shortened URL
+- **Link Status Indicator** — Real-time active/expired status display
+- **Demo Data Seeder** — Production-ready seeder for first-time setup experience
+- **In-Memory Caching** — LRU approach cache layer for frequently accessed URLs (performance optimization)
+- **Responsive Design** — Mobile-first UI that works across all device sizes
+- **Animated UI** — Smooth transitions and scroll-reveal animations using Framer Motion
 
 ---
 
@@ -79,6 +123,28 @@ docker compose exec backend npm run seed:run
 | Backend API | [http://localhost:8000](http://localhost:8000) |
 | pgAdmin     | [http://localhost:5050](http://localhost:5050) |
 
+#### pgAdmin Login
+
+To access the database via pgAdmin:
+
+- **URL:** [http://localhost:5050](http://localhost:5050)
+- **Email:** `admin@example.com`
+- **Password:** `pass`
+
+#### Accessing Database Tables
+
+To view and edit data in the database tables:
+
+1. In pgAdmin, expand **Servers** on the left sidebar
+2. Right-click on **Symph DB** and select **Properties**
+3. Go to the **Connection** tab
+4. Ensure **Hostname/address** is set to `db` (not localhost)
+5. Click **Save**
+6. Right-click on **Symph DB** again and select **Connect Server**
+   - When prompted for a password, enter `symph`
+7. Navigate to **Databases** > **symph** > **Schemas** > **public** > **Tables**
+8. Right-click on any table and select **View/Edit Data** to view its contents
+
 ### 6. Stop the environment
 
 ```bash
@@ -96,6 +162,15 @@ docker compose down
 - **Node modules issues**: If you encounter errors related to node modules, try deleting the `node_modules` folders and running `npm install` again.
 
 - **Database connection issues**: Ensure the PostgreSQL container is healthy before the backend starts. You can check with `docker compose ps`.
+
+---
+
+## Documentation
+
+Detailed documentation for each part of the codebase can be found in their respective directories:
+
+- **Backend API Documentation** — See [`server/README.md`](./server/README.md)
+- **Frontend Documentation** — See [`client/README.md`](./client/README.md)
 
 ---
 
