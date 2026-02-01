@@ -40,7 +40,7 @@ class UrlService {
         "original_url",
         "slug",
         "expiration_date",
-        "created_at",
+        "createdAt",
       ]);
 
     return created;
