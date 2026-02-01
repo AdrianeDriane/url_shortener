@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { URLComposer } from "../features/shortener/components/URLComposer";
 import { SuccessState } from "../features/shortener/components/SuccessState";
-import { ShortenResponse } from "../features/shortener/services/url.service";
+import type { ShortenResponse } from "../types/api.types";
 
 function HomePage() {
   const [shortenedData, setShortenedData] = useState<ShortenResponse | null>(

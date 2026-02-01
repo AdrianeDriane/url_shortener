@@ -8,14 +8,80 @@ import {
   MousePointerClick,
   Globe,
   Clock,
+  LucideIcon,
 } from "lucide-react";
+
+interface FeatureCardConfig {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  colorClass: string;
+}
+
+const FEATURES: FeatureCardConfig[] = [
+  {
+    icon: MousePointerClick,
+    title: "Click Tracking",
+    description: "See total clicks and engagement",
+    colorClass: "bg-indigo-100 text-indigo-600",
+  },
+  {
+    icon: Globe,
+    title: "Traffic Sources",
+    description: "Know where visitors come from",
+    colorClass: "bg-violet-100 text-violet-600",
+  },
+  {
+    icon: BarChart3,
+    title: "Performance",
+    description: "View detailed statistics",
+    colorClass: "bg-pink-100 text-pink-600",
+  },
+  {
+    icon: Clock,
+    title: "Expiration Check",
+    description: "Monitor link expiration status",
+    colorClass: "bg-emerald-100 text-emerald-600",
+  },
+];
+
+const isValidShortCode = (value: string) => /^[a-zA-Z0-9]{8}$/.test(value);
+
+function FeatureCard({
+  config,
+  index,
+}: {
+  config: FeatureCardConfig;
+  index: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+    >
+      <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-5 sm:p-6 h-full hover:border-zinc-300 transition-colors">
+        <div className="flex items-start gap-4">
+          <div
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${config.colorClass}`}
+          >
+            <config.icon size={20} className="sm:w-6 sm:h-6" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-zinc-900 mb-1">{config.title}</h3>
+            <p className="text-sm text-zinc-500">{config.description}</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function DashboardIndexPage() {
   const [shortCode, setShortCode] = useState("");
   const navigate = useNavigate();
 
-  // Validation: exactly 8 alphanumeric characters
-  const isValidCode = /^[a-zA-Z0-9]{8}$/.test(shortCode);
+  const isValidCode = isValidShortCode(shortCode);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,33 +89,6 @@ function DashboardIndexPage() {
       navigate(`/dashboard/${shortCode.trim()}`);
     }
   };
-
-  const features = [
-    {
-      icon: MousePointerClick,
-      title: "Click Tracking",
-      description: "See total clicks and engagement",
-      color: "bg-indigo-100 text-indigo-600",
-    },
-    {
-      icon: Globe,
-      title: "Traffic Sources",
-      description: "Know where visitors come from",
-      color: "bg-violet-100 text-violet-600",
-    },
-    {
-      icon: BarChart3,
-      title: "Performance",
-      description: "View detailed statistics",
-      color: "bg-pink-100 text-pink-600",
-    },
-    {
-      icon: Clock,
-      title: "Expiration Check",
-      description: "Monitor link expiration status",
-      color: "bg-emerald-100 text-emerald-600",
-    },
-  ];
 
   return (
     <div className="bg-[#fafafa] min-h-50vh pb-20">
@@ -124,31 +163,8 @@ function DashboardIndexPage() {
           </motion.div>
 
           {/* Feature Cards - 2x2 Grid */}
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-            >
-              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-5 sm:p-6 h-full hover:border-zinc-300 transition-colors">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${feature.color}`}
-                  >
-                    <feature.icon size={20} className="sm:w-6 sm:h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-zinc-900 mb-1">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-zinc-500">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+          {FEATURES.map((feature, index) => (
+            <FeatureCard key={feature.title} config={feature} index={index} />
           ))}
 
           {/* Info Card - Full Width */}

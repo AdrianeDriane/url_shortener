@@ -1,45 +1,33 @@
 import axios, { AxiosInstance } from "axios";
 import { toast } from "sonner";
-import apiConfig from "../../../config/api";
+import apiConfig from "../config/api";
+import type {
+  ShortenRequestPayload,
+  ShortenResponse,
+  AnalyticsResponse,
+} from "../types/api.types";
 
-export interface ShortenRequestPayload {
-  original_url: string;
-  slug?: string;
-  expiration_date?: string;
-  utm_params?: Record<string, string>;
-}
+// Re-export types for convenience
+export type {
+  ShortenRequestPayload,
+  ShortenResponse,
+  AnalyticsResponse,
+  ClickLog,
+  UrlDetails,
+} from "../types/api.types";
 
-export interface ShortenResponse {
-  id: string;
-  original_url: string;
-  short_url: string;
-  slug: string;
-  expiration_date?: string;
-  utm_params?: Record<string, string>;
-  createdAt: string;
-}
-
-export interface ClickLog {
-  id: string;
-  referrer: string | null;
-  user_agent: string | null;
-  created_at: string;
-}
-
-export interface AnalyticsResponse {
-  url: {
-    id: string;
-    original_url: string;
-    slug: string;
-    expiration_date: string | null;
-    utm_params: Record<string, string> | null;
-    click_count: number;
-    expired_access_count: number;
-    createdAt: string;
-  } | null;
-  clicks: ClickLog[];
-  isExpired: boolean;
-}
+const TOAST_STYLES = {
+  success: {
+    backgroundColor: "#dcfce7",
+    color: "#166534",
+    border: "1px solid #86efac",
+  },
+  error: {
+    backgroundColor: "#fee2e2",
+    color: "#991b1b",
+    border: "1px solid #fca5a5",
+  },
+} as const;
 
 class UrlService {
   private axiosInstance: AxiosInstance;
@@ -53,10 +41,6 @@ class UrlService {
     });
   }
 
-  /**
-   * Create a shortened URL
-   * POST /api/shorten
-   */
   async createShortenedUrl(
     payload: ShortenRequestPayload,
   ): Promise<ShortenResponse | null> {
@@ -67,11 +51,7 @@ class UrlService {
       );
 
       toast.success("URL shortened successfully!", {
-        style: {
-          backgroundColor: "#dcfce7",
-          color: "#166534",
-          border: "1px solid #86efac",
-        },
+        style: TOAST_STYLES.success,
       });
       return response.data;
     } catch (error) {
@@ -80,22 +60,12 @@ class UrlService {
           ? error.response.data.error
           : "Failed to shorten URL. Please try again.";
 
-      toast.error(errorMessage, {
-        style: {
-          backgroundColor: "#fee2e2",
-          color: "#991b1b",
-          border: "1px solid #fca5a5",
-        },
-      });
+      toast.error(errorMessage, { style: TOAST_STYLES.error });
       console.error("Error creating shortened URL:", error);
       return null;
     }
   }
 
-  /**
-   * Get analytics for a shortened URL
-   * GET /api/analytics/:slug
-   */
   async getAnalytics(slug: string): Promise<AnalyticsResponse | null> {
     try {
       const response = await this.axiosInstance.get<AnalyticsResponse>(
@@ -108,13 +78,7 @@ class UrlService {
           ? error.response.data.error
           : "Failed to fetch analytics.";
 
-      toast.error(errorMessage, {
-        style: {
-          backgroundColor: "#fee2e2",
-          color: "#991b1b",
-          border: "1px solid #fca5a5",
-        },
-      });
+      toast.error(errorMessage, { style: TOAST_STYLES.error });
       console.error("Error fetching analytics:", error);
       return null;
     }

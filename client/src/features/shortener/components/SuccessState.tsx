@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { Copy, ExternalLink, Check, BarChart3, Download } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
-import { ShortenResponse } from "../services/url.service";
+import type { ShortenResponse } from "../../../types/api.types";
 
 interface SuccessStateProps {
   data: ShortenResponse;

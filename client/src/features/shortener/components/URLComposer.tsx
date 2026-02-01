@@ -7,7 +7,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { AdvancedSettings } from "./AdvancedSettings";
-import urlService, { ShortenResponse } from "../services/url.service";
+import urlService from "../../../services/url.service";
+import type { ShortenResponse } from "../../../types/api.types";
 import {
   validateUrl,
   validateSlug,
