@@ -12,7 +12,8 @@
     "migration:latest": "knex --knexfile ./src/db/knexfile.js --client pg migrate:latest",
     "migration:status": "knex --knexfile ./src/db/knexfile.js --client pg migrate:status",
     "migration:rollback": "knex --knexfile ./src/db/knexfile.js migrate:rollback",
-    "migration:unlock": "knex --knexfile ./src/db/knexfile.js migrate:unlock"
+    "migration:unlock": "knex --knexfile ./src/db/knexfile.js migrate:unlock",
+    "seed:run": "knex --knexfile ./src/db/knexfile.js --client pg seed:run"
   },
   "author": "",
   "license": "ISC",

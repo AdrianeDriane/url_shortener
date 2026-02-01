@@ -12,5 +12,11 @@ module.exports = {
     connection: {
       connectionString: process.env.DB_CONNECTION_URI,
     },
+    migrations: {
+      directory: "./migrations",
+    },
+    seeds: {
+      directory: "./seeds",
+    },
   },
 };
