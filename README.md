@@ -93,23 +93,19 @@ project-root/
 Before starting, ensure you have the following tools installed on your system:
 
 1. **Docker** (v20.10 or higher)
-
    - [Install Docker for macOS](https://docs.docker.com/desktop/install/mac/)
    - [Install Docker for Windows](https://docs.docker.com/desktop/install/windows/)
    - [Install Docker for Linux](https://docs.docker.com/desktop/install/linux/)
 
 2. **Docker Compose** (v1.29 or higher)
-
    - Docker Desktop for macOS and Windows includes Docker Compose
    - For Linux: `sudo apt-get install docker-compose-plugin`
 
 3. **Node.js** (v20 or higher)
-
    - [Download Node.js](https://nodejs.org/)
    - Recommended: Use [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions
 
 4. **Git** (optional, but recommended)
-
    - [Install Git](https://git-scm.com/downloads)
 
 5. **Code Editor**
@@ -136,7 +132,6 @@ Before starting, ensure you have the following tools installed on your system:
    ```
 
    **Option 2: Manual download**
-
    - Go to the repository's page on GitHub
    - Click the green "Code" button and select "Download ZIP"
    - Extract the ZIP file to your desired location
@@ -163,14 +158,12 @@ Before starting, ensure you have the following tools installed on your system:
    ```
 
    This command will:
-
    - Build all Docker images
    - Start all services defined in docker-compose.yml
    - Connect the services together
    - Forward the necessary ports to your host machine
 
 4. **Access the application:**
-
    - Frontend: [http://localhost:3000](http://localhost:3000)
    - Backend API: [http://localhost:8000](http://localhost:8000)
    - pgAdmin: [http://localhost:5050](http://localhost:5050)
@@ -451,3 +444,6 @@ Default Ports:
 ## Submitting your solution
 
 - Please make sure that the code you submit is working and runnable by using docker c ompose up. This will ensure that the code is working in which ever environment you are using.
+
+TEST
+http://localhost:8000/gm2zIsxU
