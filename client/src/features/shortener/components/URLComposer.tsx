@@ -8,6 +8,11 @@ import {
 } from "lucide-react";
 import { AdvancedSettings } from "./AdvancedSettings";
 import urlService, { ShortenResponse } from "../services/url.service";
+import {
+  validateUrl,
+  validateSlug,
+  validateExpirationDate,
+} from "../utils/validation";
 
 interface URLComposerProps {
   onShorten: (result: ShortenResponse) => void;
@@ -19,40 +24,12 @@ interface ValidationErrors {
   expirationDate?: string;
 }
 
-const validateUrl = (url: string): string | undefined => {
-  if (!url) {
-    return "URL is required";
-  }
-  try {
-    new URL(url);
-    return undefined;
-  } catch {
-    return "Please enter a valid URL (e.g., https://example.com)";
-  }
-};
-
-const validateSlug = (slug: string): string | undefined => {
-  if (!slug) return undefined;
-  if (slug.length < 3) {
-    return "Slug must be at least 3 characters";
-  }
-  if (slug.length > 20) {
-    return "Slug must be 20 characters or less";
-  }
-  if (!/^[a-zA-Z0-9-_]+$/.test(slug)) {
-    return "Slug can only contain letters, numbers, hyphens, and underscores";
-  }
-  return undefined;
-};
-
-const validateExpirationDate = (dateStr: string): string | undefined => {
-  if (!dateStr) return undefined;
-  const selectedDate = new Date(dateStr);
-  const now = new Date();
-  if (selectedDate <= now) {
-    return "Expiration date must be in the future";
-  }
-  return undefined;
+const INITIAL_UTM_PARAMS: Record<string, string> = {
+  Source: "",
+  Medium: "",
+  Campaign: "",
+  Term: "",
+  Content: "",
 };
 
 export function URLComposer({ onShorten }: URLComposerProps) {
@@ -62,100 +39,66 @@ export function URLComposer({ onShorten }: URLComposerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
 
-  // Advanced settings state
   const [slug, setSlug] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
-  const [utmParams, setUtmParams] = useState<Record<string, string>>({
-    Source: "",
-    Medium: "",
-    Campaign: "",
-    Term: "",
-    Content: "",
-  });
+  const [utmParams, setUtmParams] = useState(INITIAL_UTM_PARAMS);
 
   const handleUtmParamChange = (field: string, value: string) => {
-    setUtmParams((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setUtmParams((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateForm = (): boolean => {
-    const newErrors: ValidationErrors = {};
+    const newErrors: ValidationErrors = {
+      url: validateUrl(url),
+      slug: validateSlug(slug),
+      expirationDate: validateExpirationDate(expirationDate),
+    };
 
-    const urlError = validateUrl(url);
-    if (urlError) newErrors.url = urlError;
+    const filteredErrors = Object.fromEntries(
+      Object.entries(newErrors).filter(([, v]) => v !== undefined),
+    ) as ValidationErrors;
 
-    const slugError = validateSlug(slug);
-    if (slugError) newErrors.slug = slugError;
+    setErrors(filteredErrors);
+    return Object.keys(filteredErrors).length === 0;
+  };
 
-    const expirationError = validateExpirationDate(expirationDate);
-    if (expirationError) newErrors.expirationDate = expirationError;
+  const buildUtmParams = (): Record<string, string> | undefined => {
+    const filtered = Object.entries(utmParams)
+      .filter(([, value]) => value)
+      .reduce(
+        (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
+        {},
+      );
+    return Object.keys(filtered).length > 0 ? filtered : undefined;
+  };
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const resetForm = () => {
+    setUrl("");
+    setSlug("");
+    setExpirationDate("");
+    setUtmParams(INITIAL_UTM_PARAMS);
+    setErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
-
-    // Convert local datetime to ISO 8601 format with timezone offset
-    let isoExpirationDate: string | undefined;
-    if (expirationDate) {
-      const date = new Date(expirationDate);
-      // Get timezone offset and format as ISO string with offset
-      // e.g., "2026-02-15T14:30:00-05:00"
-      isoExpirationDate =
-        date.toISOString().split("Z")[0] +
-        new Date()
-          .toLocaleTimeString("en-US", { timeZoneName: "short" })
-          .slice(-5);
-      // Simpler approach: just send ISO string, backend will handle comparison
-      isoExpirationDate = new Date(expirationDate).toISOString();
-    }
-
-    // Filter out empty UTM params
-    const filteredUtmParams = Object.entries(utmParams)
-      .filter(([, value]) => value)
-      .reduce(
-        (acc, [key, value]) => ({
-          ...acc,
-          [key.toLowerCase()]: value,
-        }),
-        {},
-      );
 
     const result = await urlService.createShortenedUrl({
       original_url: url,
       slug: slug || undefined,
-      expiration_date: isoExpirationDate || undefined,
-      utm_params:
-        Object.keys(filteredUtmParams).length > 0
-          ? filteredUtmParams
-          : undefined,
+      expiration_date: expirationDate
+        ? new Date(expirationDate).toISOString()
+        : undefined,
+      utm_params: buildUtmParams(),
     });
 
     setIsLoading(false);
 
     if (result) {
-      // Reset form
-      setUrl("");
-      setSlug("");
-      setExpirationDate("");
-      setUtmParams({
-        Source: "",
-        Medium: "",
-        Campaign: "",
-        Term: "",
-        Content: "",
-      });
-      setErrors({});
+      resetForm();
       onShorten(result);
     }
   };
